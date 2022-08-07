@@ -10,3 +10,8 @@ El repositorio está estructurado como sigue:
 
 - Una [primera parte](./01-extraccion-con-openrefine) cubre la extracción con OpenRefine, como complemento a lo que se ha visto en el capítulo
 - Una [segunda parte](./02-extraccion-con-python) cubre la extracción con el lenguaje de programación Python, que no se ha abordado en el capítulo
+
+<html>
+<!--
+%TODO añadir información de instalación de python-->
+</html>
