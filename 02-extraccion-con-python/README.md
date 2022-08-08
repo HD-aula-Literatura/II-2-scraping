@@ -19,8 +19,8 @@ Si bien una herramienta como OpenRefine tiene funciones potentes para el scrapin
 
 Por ejemplo, usar un lenguaje de programación permite una mayor automatización. En OpenRefine hemos exportado los resultados de la extracción "a mano", a través de opciones que debemos clicar en la interfaz gráfica. Con un lenguaje de programación, podemos escribir código que se ocupará de hacer las exportaciones deseadas (en uno o varios formatos), creando nombres de archivos de salida dinámicamente
 
-<html>
-<!-- %TODO
-Añadir explicación sobre notebooks python
--->
-</html>
+## Cómo usar los materiales
+
+Se proporcionan notebooks Jupyter. Son documentos que combinan texto (y quizás imágenes u otros archivos) con secciones de código. Las secciones de código se pueden usar simplemente para leer el código, pero son también ejecutables si abrimos el notebook desde un entorno interactivo que gestione notebooks Jupyter (instalado en nuestro ordenador o en una plataforma en la nube).
+
+Al principio de cada notebook se da un enlace a un entorno de la plataforma [Binder](https://mybinder.org/) que permite usarlos de forma interactiva ejecutando código y añadiendo nuestras propias secciones también. 
