@@ -3,9 +3,7 @@
 - [Introducción: XML](#s-intro)
   - [Sintaxis XML](#ss-sintaxis)
 - [Extracción con OpenRefine](#s-manipular-xml)
-  - [Metadatos](#ss-metadatos)
-  - [Texto del poema](#ss-texto)
-- [Exportar la información extraída](#ss-guardar-dataframe)
+- [Exportar la información extraída](#s-guardar)
 
 <a name="s-intro"></a>
 
@@ -83,9 +81,7 @@ Procedemos de la misma forma que para bajar una página en HTML. Vamos a crear u
 
 Asumimos aquí que estas etapas ya se han efectuado, y que tenemos dentro de nuestro proyecto OpenRefine una columna llamada *xml* que contiene el XML a analizar.
 
-A partir de esta columna, extraemos el título y autora del poema, así como su texto.
-
-Si miramos el XML de la columna, nos interesan los fragmentos siguientes:
+A partir de esta columna, extraeremos la autora y título del poema, así como su texto. Si miramos el XML de la columna, nos interesan los fragmentos siguientes:
 
 **Para la autora**
 
@@ -104,7 +100,7 @@ Si miramos el XML de la columna, nos interesan los fragmentos siguientes:
 <text xml:space="preserve"> ... </text>
 ```
 
-En los casos del título y de la autora se ve claramente la localización de la información. En el caso del texto del poema, la API de Wikisource no da un campo específico con su contenido. Lo que hace es dar, dentro del elemento `<text>`, una cadena de texto que expresa una parte del contenido principal del cuerpo de la página en HTML (la parte central con el poema y algunos de sus metadatos). Así que debemos extraer esta cadena, crear un árbol HTML y extraer el texto del poema a partir de este. No es el uso más típico de XML pero nos permite combinar los conocimientos vistos en el capítulo.
+En los casos de la autora y título, se ve claramente la localización de la información. En el caso del texto del poema, la API de Wikisource no da un campo específico con su contenido. Lo que hace es dar, dentro del elemento `<text>`, una cadena de texto que expresa una parte del contenido principal del cuerpo de la página en HTML (la parte central con el poema y algunos de sus metadatos). Así que debemos extraer esta cadena, crear un árbol HTML y extraer el texto del poema a partir de este. No es el uso más típico de XML pero nos permite combinar los conocimientos vistos en el capítulo.
 
 <a name="sss-metadatos"></a>
 
@@ -114,25 +110,57 @@ Extraemos la autora con la expresión [GREL](https://docs.openrefine.org/manual/
 value.parseXml().select("links")[0].select("pl")[0].xmlText().replace('Autor:','')
 ```
 
+| ![Extracción autora](./img/01_xml_02_autora.png) | 
+|:--:| 
+| *Extracción de la autora a una nueva columna *autora** |
+
+
 Extraemos el título con la expresión [GREL](https://docs.openrefine.org/manual/grelfunctions) siguiente:
 
 ```
 value.parseXml().select("parse")[0].xmlAttr("title")
 ```
 
+| ![Extracción del título](./img/01_xml_03_title.png) | 
+|:--:| 
+| Extracción del título a una nueva columna *titulo* |
 
-Nos ocupamos ahora del texto. Primero extraemos la parte central del cuerpo de la página Wikisource que contiene el poema con alguna información más (como se ha dicho, la API no divide el contenido de forma más detallada). Para esto usamos la expresión [GREL](https://docs.openrefine.org/manual/grelfunctions) siguiente:
+Nos ocupamos ahora del texto. Primero extraemos la parte central del cuerpo de la página Wikisource que contiene el poema con alguna información más (como se ha dicho, la API no divide el contenido de forma más detallada). Para esto usamos la expresión [GREL](https://docs.openrefine.org/manual/grelfunctions) siguiente (no creamos una columna todavía ya que esta expresión no nos da el resultado final)
 
 ```
 value.parseXml().select("text")[0].ownText()
 ```
+
+| ![Extracción del texto (etapa intermedia)](./img/01_xml_04_html-text-from-xml.png) | 
+|:--:| 
+| Etapa intermedia para mostrar que el elemento `<text>` contiene una representación HTML del texto del poema entre otras informaciones |
+
+
 <!-- %TODO explain .ownText() -->
 
 Ya que esta cadena expresa el HTML de la página, la analizaremos con el parseador de HTML y extraeremos el texto del poema, usando las mismas operaciones que ya se vieron en el capítulo.
 
 ```
-value.parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unescape("html").split("<br>"), verso, verso.trim()).join("\n")
+forEach(value.parseXml().select("text")[0].ownText().value.parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unescape("html").split("<br>"), verso, verso.trim()).join("\n")
 ```
+
+| ![Extracción del texto (columna final)](./img/01_xml_05_texto-poema.png) | 
+|:--:| 
+| Extracción del texto del poema a una nueva columna *textoPoema* |
+
+<a name="s-guardar"></a>
+
+# Exportar la información extraída
+
+OpenRefine tiene varias posibilidades de exportación de un proyecto, desde el botón *Export* arriba a la derecha. Por ejemplo la opción *Custom tabular exporter* que permite elegir las columnas a exportar. 
+
+|1|
+|:--:|
+| ![Extracción del texto (columna final)](./img/01_xml_06_exportacion-1.png) | 
+|**2**| 
+| ![Extracción del texto (columna final)](./img/01_xml_06_exportacion-2.png) |
+| Exportación de las columnas seleccionadas |
+
 
 <html>
 <!--
@@ -141,8 +169,6 @@ Create column xml at index 1 by fetching URLs based on column Column 1 using exp
 2.Create new column titulo based on column xml by filling 1 rows with grel:value.parseXml().select("parse")[0].xmlAttr("title")
 3.Create new column autora based on column xml by filling 1 rows with grel:value.parseXml().select("links")[0].select("pl")[0].xmlText().replace('Autor:','')
 4.Create new column textoPoema based on column xml by filling 1 rows with grel:forEach(value.parseXml().select("text")[0].ownText().parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unescape("html").split("<br>"), verso, verso.trim()).join("\n")
-
-
 
 -->
 </html>
