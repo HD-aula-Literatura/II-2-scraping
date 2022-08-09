@@ -109,6 +109,7 @@ Extraemos la autora con la expresión [GREL](https://docs.openrefine.org/manual/
 ```
 value.parseXml().select("links")[0].select("pl")[0].xmlText().replace('Autor:','')
 ```
+<html><!-- Image in table https://stackoverflow.com/a/45191209/16449778 --></html>
 
 | ![Extracción autora](./img/01_xml_02_autora.png) | 
 |:--:| 
@@ -156,9 +157,9 @@ OpenRefine tiene varias posibilidades de exportación de un proyecto, desde el b
 
 |1|
 |:--:|
-| ![Extracción del texto (columna final)](./img/01_xml_06_exportacion-1.png) | 
+| ![Exportación del texto (selección de columnas)](./img/01_xml_06_exportacion-1.png) | 
 |**2**| 
-| ![Extracción del texto (columna final)](./img/01_xml_06_exportacion-2.png) |
+| ![Exportación del texto (exportación)](./img/01_xml_06_exportacion-2.png) |
 | Exportación de las columnas seleccionadas |
 
 
