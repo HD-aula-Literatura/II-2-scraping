@@ -161,7 +161,7 @@ OpenRefine tiene varias posibilidades de exportación de un proyecto, desde el b
 | ![Exportación del texto (exportación)](./img/01_json_06_exportacion-2.png) |
 | Exportación de las columnas seleccionadas |
 
-ù
+
 <html>
 <!--
 0.Create project
