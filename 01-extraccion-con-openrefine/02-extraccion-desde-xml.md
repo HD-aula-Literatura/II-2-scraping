@@ -114,11 +114,20 @@ Extraemos la autora con la expresión [GREL](https://docs.openrefine.org/manual/
 value.parseXml().select("links")[0].select("pl")[0].xmlText().replace('Autor:','')
 ```
 
-Nos ocupamos ahora del texto. Primero extraemos la parte central del cuerpo de la página Wikisource que contiene el poema con alguna información más (como se ha dicho, la API no divide el contenido de forma más detallada). Para esto usamos la expresión [GREL](https://docs.openrefine.org/manual/grelfunctions) siguiente:
+Extraemos el título con la expresión [GREL](https://docs.openrefine.org/manual/grelfunctions) siguiente:
 
 ```
 value.parseXml().select("parse")[0].xmlAttr("title")
 ```
+
+
+Nos ocupamos ahora del texto. Primero extraemos la parte central del cuerpo de la página Wikisource que contiene el poema con alguna información más (como se ha dicho, la API no divide el contenido de forma más detallada). Para esto usamos la expresión [GREL](https://docs.openrefine.org/manual/grelfunctions) siguiente:
+
+```
+value.parseXml().select("text")[0].ownText()
+```
+<!-- %TODO explain .ownText() -->
+
 Ya que esta cadena expresa el HTML de la página, la analizaremos con el parseador de HTML y extraeremos el texto del poema, usando las mismas operaciones que ya se vieron en el capítulo.
 
 ```
@@ -128,5 +137,12 @@ value.parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unesca
 <html>
 <!--
 4.Create new column textoPoema based on column xml by filling 1 rows with grel:forEach(value.parseXml().select("text")[0].ownText().parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unescape("html").split("<br>"), verso, verso.trim()).join("\n")
+Create column xml at index 1 by fetching URLs based on column Column 1 using expression grel:value
+2.Create new column titulo based on column xml by filling 1 rows with grel:value.parseXml().select("parse")[0].xmlAttr("title")
+3.Create new column autora based on column xml by filling 1 rows with grel:value.parseXml().select("links")[0].select("pl")[0].xmlText().replace('Autor:','')
+4.Create new column textoPoema based on column xml by filling 1 rows with grel:forEach(value.parseXml().select("text")[0].ownText().parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unescape("html").split("<br>"), verso, verso.trim()).join("\n")
+
+
+
 -->
 </html>
