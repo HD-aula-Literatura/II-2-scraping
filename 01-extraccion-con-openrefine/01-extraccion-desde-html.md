@@ -64,14 +64,82 @@ Se confirma la creación del proyecto con *Create project*.
 
 El proyecto tiene inicialmente una sola columna (*Column 1*) que contiene el URL que hemos introducido (figura 3).
 
+
 | ![column 1](./img/01_html_03_column-1.png) | 
 |:--:|
 |Figura 3. Única columna inicial del proyecto|
 
-| ![fetch 1](./img/01_html_04_dialogo-fetch.png) | 
-|:--:|
-|Figura 3. Única columna inicial del proyecto|
+La figura 4 muestra el diálogo para bajar el HTML de la página asociada al URL.
 
-| ![fetch 2](./img/01_html_04_dialogo-fetch-02.png) | 
+En (1), con la opción *Edit column*, disponible en el menú desplegable que se activa con la flecha de *Column 1*, se selecciona *Add columns by fetching URL)
+
+En el diálogo de (2), hay varias partes que nos interesan:
+
+- *New column name*: para el nombre de la nueva columna; aquí hemos elegido *htmlOriginal* 
+- *Throttle delay*: el  numero de milisegundos (ms) que OpenRefine va a esperar entre peticiones de páginas al servidor. Por defecto espera 5 segundos, pero podemos cambiar este valor a algo más corto, p. ej. 1200 ms.
+- On error: Hay dos opciones, *set to blank* y *store error*. *Store error* es más interesante en el sentido de que, en caso de que la operación dé un error, el mensaje de error se almacenará en la celda correspondiente de la columna. Al contrario esa celda quedará blanca.
+
+Las opciones relacionadas con la manipulación de resultados (cuadro *Expression* y paneles *Preview*, *History*) se ven más abajo.
+
+Aquí dejamos, dentro del cuadro *Expression*, la expresión `value`. El resultado de bajar el HTML de la página asociada el URL será almacenado en la columa *htmlOriginal* (ver figura 5) sin manipulación ulterior. 
+
+|1|
 |:--:|
-|Figura 3. Única columna inicial del proyecto|
+| ![fetch 1](./img/01_html_04_dialogo-fetch.png) | 
+| ![fetch 2](./img/01_html_04_dialogo-fetch-02.png) | 
+|**2**|
+|Figura 4. Bajar el HTML para el URL|
+
+| ![fetch 1](./img/01_html_05_html-bajado.png) | 
+|:--:|
+|Figura 5. Nueva columna *htmlOriginal*|
+
+A partir de este HTML, vamos a extraer metadatos del poema (autora y título), así como su texto.
+
+Las partes siguientes del HTML nos interesan para esto (figura 6):
+
+**(1) Autora**
+```xml
+<span class="ws-author">Delmira Agustini</span>
+```
+
+**(2) Título**
+```xml
+<title>Una viñeta - Wikisource</title>
+```
+
+**(3) Texto del poema**
+```xml
+<div class="poem">
+<p>&#160;Tarde sucia de invierno. El caserío,   <br />
+&#160;como si fuera un croquis al creyón,   <br />
+&#160;se hunde en la noche. El humo de un bohío,   <br />
+&#160;que sube en forma de tirabuzón;   <br />
+&#160;<br />
+<br />
+&#160;mancha el paisaje que produce frío,  <br />
+&#160;y debajo de la genuflexión   <br />
+&#160;de la arboleda, somormuja el río   <br />
+&#160;su canción, su somnífera canción.   <br />
+&#160;<br />
+<br />
+&#160;Los labradores, camellón abajo,   <br />
+&#160;retornan fatigosos del trabajo,  <br />
+&#160;como un problema sin definición.   <br />
+&#160;<br />
+<br />
+&#160;Y el dueño del terruño, indiferente,   <br />
+&#160;rápidamente, muy rápidamente,   <br />
+&#160;baja en su coche por el camellón.
+</p>
+</div>
+```
+|&nbsp;|
+|:--:|
+|Figura 6. Elementos HTML a partir de los cuales extraeremos la información|
+
+Para extraer la autora, la expresión es:
+
+```
+value.parseHtml().select("span[class=ws-author]")[0].innerHtml()
+```
