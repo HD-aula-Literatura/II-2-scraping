@@ -159,7 +159,7 @@ El diálogo de extracción (figura 7.2) tiene los componentes siguientes.
 
 Para extraer la autora, damos la expresión GREL completa a continuación (expresión 1), pero explicamos después sus partes:
 
-<a nae="exp-1"></a>
+<a name="exp-1"></a>
 **Expresión 1**
 ```
 value.parseHtml().select("span[class=ws-author]")[0].innerHtml()
@@ -186,16 +186,90 @@ Para extraer el título, si observamos varios poemas, veremos que el elemento m�
  
 Damos la expresión GREL completa a continuación (expresión 1), pero explicamos después el contenido de esta que no se ha visto ya:
 
-<a nae="exp-2"></a>
+<a name="exp-2"></a>
 **Expresión 2**
 ```
 value.parseHtml().select("title")[0].innerHtml().replace(" - Wikisource"), "")
 ```
 
-La novedad aquí es que, para elminiar la cadena * - Wikisource* y dejar solo el título, aplicamos `replace()` al resultado de `select()`. Esta instrucción toma como primer argumento la secuencia a reemplazar y como segundo argumento la cadena por la cual debe ser sustituida. Como la segunda cadena está vacía `""`, el resultado es la eliminación de la cadena que se ha dado como primer argumento.
+La novedad aquí es que, para elminiar la cadena  <em> - Wikisource</em> y dejar solo el título, aplicamos `replace()` al resultado de `select()`. Esta instrucción toma como primer argumento la secuencia a reemplazar y como segundo argumento la cadena por la cual debe ser sustituida. Como la segunda cadena está vacía `""`, el resultado es la eliminación de la cadena que se ha dado como primer argumento.
 
 | ![título expresión final](./img/01_html_09_titulo-final.png) | 
 |:--:|
 |Figura 8. Expresión para extracción del título a una columna *título*|
 
+Pasamos a la extracción del texto del poema.
+
+Antes de dar la expresión que efectúa la extracción en una sola etapa, damos una expresión que corresponde a una etapa intermedia, para destacar algunas de las operaciones a efectuar.
+
+<a name="exp-3"></a>
+**Expresión 3**
+```
+forEach(value.parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unescape("html").split("<br>"), verso, verso.trim()).join("\n")
+```
+
+| ![lista versos poema](./img/01_html_10_texto-poema-br.png) | 
+|:--:|
+|Figura 10. Estado intermedio en extracción del texto del poema. Se muestra para destacar que `split()` devuelve una lista como resultado.|
+
+La expresión 3 extrae una lista (*array*) con el texto de cada verso del poema. Vemos en esta expresión una nueva instrucción, **`split()`**, que toma `<br>` como argumento  (el argumento es la secuencia entrecomillada dentro de los paréntesis).
+
+El array de resultado de la expresión 3 (ver figura 10) está compuesto de cadenas de texto, una por verso, que se muestran entre comillas y separadas por comas. Hay también cadenas que solo contienen un espacio entre las comillas; corresponden a la separación entre estrofas. A partir de este array, vamos a extraer el poema como una única cadena de texto, manteniendo la separación de estrofas, con la expresión 4.
+
+
+La expresión completa para extraer el texto del poema es la expresión 4. Explicaremos después de la expresión las partes de esta que no se han visto todavía.
+
+| ![texto poema final](./img/01_html_11_texto-poema-final.png) | 
+|:--:|
+|Figura 11. Expresión final para extraer el texto del poema|
+
+<a nae="exp-4"></a>
+**Expresión 4**
+```
+forEach(value.parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unescape("html").split("<br>"), verso, verso.trim()).join("\n")
+```
+
+El funcionamiento de esta expresión se explicó en detalle en el capítulo. La información se reproduce aquí para facilitar su consultación. 
+
+- **`unescape("html")`**: sustituye las entidades HTML por el carácter que representan, en este caso sustituye &nsbp; por un espacio indivisible.
+- **`forEach(secuencia, nombreVariable, expresión)`**: Existe un constructo for each en muchos lenguajes informáticos, para iterar sobre una secuencia y manipular el contenido de sus miembros. Este tipo de estructura se conoce como bucle (*loop*). En el lenguaje utilizado en OpenRefine (GREL), la instrucción `forEach` toma tres argumentos: una secuencia (una lista o *array*), un nombre de variable que sirve para recorrer los miembros de la secuencia (es decir, un iterador) y una expresión que típicamente mencionará a este iterador, para efectuar una operación sobre el contenido asignado a él. En el ejemplo, la secuencia es el *array* que contiene las cadenas que corresponden a los versos, ya visto en la figura 8, con la diferencia de que ahora las entidades HTML están reemplazadas por los caracteres que representan. El iterador, la variable para recorrer la secuencia, es verso (si bien se puede usar cualquier otro nombre). El bucle `forEach` asigna iterativamente a la variable verso cada miembro del array (el contenido de cada verso en este caso), desde el primer hasta el último elemento del *array*.
+- **`trim()`**: Con cada verso, dentro del bucle se efectúa esta operación, que retira espacios en blanco, si los hay, del inicio y fin de una cadena de texto. En este caso sí que  los hay, como se ve en la Figura 8, y `trim()` los eliminará.
+- **`join("\n")`**: Esta función toma un array de cadenas de texto como entrada, y las une usando la secuencia de caracteres (delimitador) que se le da como argumento (entrecomillada dentro del paréntesis). La secuencia elegida aquí es `\n`, que representa un salto de línea. Por eso, el resultado que será almacenado en la columna *textoPoema* es el texto del poema. Las separaciones de estrofas se deben a las cadenas dentro del array que sólo contienen espacios. Al aplicar `trim()`, estos espacios desaparecen, pero queda en el array una cadena vacía o de longitud 0 caracteres. Al aplicar `join("\n")`, un salto de línea adicional se inserta, que crea la división de estrofas. Cabe mencionar también que las celdas de OpenRefine no pueden almacenar arrays, con lo que para almacenar el resultado de una operación hay que usar bien `.toString()` como instrucción final, bien `.join()` con un delimitador adecuado. El delimitador puede ser una cadena vacía, como en `.join("")`; esto une las cadenas inmediatamente una tras la otra. Si intentamos guardar un array (sin `join`) y hemos activado la opción store error (como en las figuras de este capítulo), OpenRefine mostrará en la columna un mensaje de error que nos advierte del problema. Para guardar cada miembro del array en líneas separadas (siempre dentro de la misma celda OpenRefine), el delimitador es `\n`.
+
+| ![texto poema final](./img/01_html_11_texto-poema-final.png) | 
+|:--:|
+|Figura 11. Expresión final para extraer el texto del poema|
+
+Como resumen, la tabla siguiente muestra las expresiones usadas para extraer la autora, el título y el texto del poema, cada uno en su columna
+
+<table>
+<thead>
+  <tr>
+    <th>Columna de entrada</th>
+    <th>Columna creada</th>
+    <th>Expresión de OpenRefine</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td style="font-family:monospace">htmlOriginal</td>
+    <td style="font-family:monospace">autora</td>
+    <td style="font-family:monospace">value.parseHtml().select("span[class=ws-author]")[0].innerHtml()</td>
+  </tr>
+  <tr>
+    <td style="font-family:monospace">htmlOriginal</td>
+    <td style="font-family:monospace">titulo</td>
+    <td style="font-family:monospace">value.parseHtml().select("title")[0].innerHtml().replace(" - Wikisource"), "")</td>
+  </tr>
+  <tr>
+    <td style="font-family:monospace">htmlOriginal</td>
+    <td style="font-family:monospace">textoPoema</td>
+    <td style="font-family:monospace">forEach(value.parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unescape("html").split("<br>"), verso, verso.trim()).join("\n")</td>
+  </tr>
+</tbody>
+</table>
+
 ## Extracción de múltiples poemas a partir de una lista de URLs
+
+%TODO
+
