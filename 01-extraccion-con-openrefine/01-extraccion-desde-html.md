@@ -223,7 +223,7 @@ Damos la expresión GREL completa a continuación (expresión 1), pero explicamo
 <a name="exp-2"></a>
 **Expresión 2**
 ```
-value.parseHtml().select("title")[0].innerHtml().replace(" - Wikisource"), "")
+value.parseHtml().select("title")[0].innerHtml().replace(" - Wikisource", "")
 ```
 
 La novedad aquí es que, para elminiar la cadena  <em> - Wikisource</em> y dejar solo el título, aplicamos `replace()` al resultado de `select()`. Esta instrucción toma como primer argumento la secuencia a reemplazar y como segundo argumento la cadena por la cual debe ser sustituida. Como la segunda cadena está vacía `""`, el resultado es la eliminación de la cadena que se ha dado como primer argumento.
@@ -297,7 +297,7 @@ Como resumen, la tabla siguiente muestra las expresiones usadas para extraer la 
   <tr>
     <td style="font-family:monospace">htmlOriginal</td>
     <td style="font-family:monospace">titulo</td>
-    <td style="font-family:monospace">value.parseHtml().select("title")[0].innerHtml().replace(" - Wikisource"), "")</td>
+    <td style="font-family:monospace">value.parseHtml().select("title")[0].innerHtml().replace(" - Wikisource", "")</td>
   </tr>
   <tr>
     <td style="font-family:monospace">htmlOriginal</td>
