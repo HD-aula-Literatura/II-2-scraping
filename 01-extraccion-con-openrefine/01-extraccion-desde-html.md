@@ -108,7 +108,7 @@ Las opciones relacionadas con la manipulación de resultados (cuadro *Expression
 Aquí dejamos, dentro del cuadro *Expression*, la expresión `value`. El resultado de bajar el HTML de la página asociada el URL será almacenado en la columa *htmlOriginal* (ver figura 5) sin manipulación ulterior. 
 
 
-<a name="fig-6"></a>
+<a name="fig-5"></a>
 |1|
 |:--:|
 | ![fetch 1](./img/01_html_04_dialogo-fetch.png) | 
@@ -128,6 +128,7 @@ A partir de este HTML, vamos a extraer metadatos del poema (autora y título), a
 
 Las partes siguientes del HTML nos interesan para esto (figura 6):
 
+<a name="fig-6"></a>
 **(1) Autora**
 ```xml
 <span class="ws-author">Delmira Agustini</span>
@@ -202,7 +203,7 @@ value.parseHtml().select("span[class=ws-author]")[0].innerHtml()
 - **`value`**: Se refiere al contenido de cada celda de la columna. Es una variable definida por OpenRefine
 - **`parseHtml()`**: Como se dijo en el capítulo, los documentos HTML son una estructura arbórea. Este árbol se puede expresar mediante una cadena de caracteres que sigue ciertas reglas de sintaxis. Con `parseHtml()`, el parseador (analizador) de OpenRefine crea un árbol HTML a partir de la cadena de texto que lo represente
 - **`select()`**: Esta instrucción permite seleccionar conjuntos de nodos dentro del árbol HTML. Se le da como argumento (es decir, la cadena entrecomillada que va entre los paréntesis) una expresión que describe estos nodos, según la sintaxis descrita en la [documentación](https://jsoup.org/apidocs/org/jsoup/select/Selector.html). Es una sintaxis similar a la que se usa en el lenguaje [CSS](https://uniwebsidad.com/libros/css/capitulo-2/selectores-basicos) para describir conjuntos de elementos.
-    - **`span[class=ws-author]`**: Selecciona el conjunto de elementos `<span>` que llevan un atributo `class` cuyo valor es *ws-author*, lo cual corresponde al elemento que contiene la autora, ver [figura 6]("fig-6") (1)
+    - **`span[class=ws-author]`**: Selecciona el conjunto de elementos `<span>` que llevan un atributo `class` cuyo valor es *ws-author*, lo cual corresponde al elemento que contiene la autora, ver [figura 6](#fig-6) (1)
 - **`[0]`**: ¿Por qué añadir esto después de `select()`? Se debe a que `select()` devuelve sus resultados dentro de una **lista** (llamada *array*). Incluso cuando hay un sólo elemento que corresponde a la descripción (como es el caso aquí), este se incluye dentro de una estructura de datos de tipo lista. Para acceder a este primer elemento, se hace con `[0]` (empezamos a contar los miembros de la lista por 0). Después de aplicar `[0]` al resultado de `select()`, tenemos ya un elemento HTML como resultado, al que podemos aplicar los métodos (funciones) disponibles para este tipo de objeto. 
 - **`innerHtml()`**: Dado un elemento HTML, la instrucción `innerHtml()` devuelve el marcado que corresponde al contenido de un elemento. En este caso, el único contenido es texto (no hay otras etiquetas), con lo que podemos aplicar esta instrucción para extraer el texto. Otra instrucción, que extrae texto exclusivamente, es `ownText()`. En caso de que haya elementos anidados, hay otras instrucciones de GREL como `htmlText()` para extraer el texto (ver [documentación](https://docs.openrefine.org/manual/grel))
 
@@ -243,7 +244,7 @@ Antes de dar la expresión que efectúa la extracción en una sola etapa, damos 
 <a name="exp-3"></a>
 **Expresión 3**
 ```
-forEach(value.parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unescape("html").split("<br>"), verso, verso.trim()).join("\n")
+value.parseHtml().select("div[class=poem]")[0].select("p")[0].innerHtml().unescape("html").split("<br>")
 ```
 
 | ![lista versos poema](./img/01_html_10_texto-poema-br.png) | 
